@@ -1,4 +1,3 @@
-package powermonitoring.actions;
 import java.io.IOException;
 
 import org.snmp4j.*;
@@ -57,6 +56,28 @@ public class SNMPManager {
 		}
 		
 		pdu.setType(PDU.GET);
+		ResponseEvent event = snmp.send(pdu, getTarget(), null);
+		
+		if(event != null) {
+			return event;
+		}
+	
+		throw new RuntimeException("GET timed out");
+	}
+	
+	/***
+	 * This method is capable of handling multiple OIDs
+	 * @param oids 
+	 * @return
+	 * @throws IOException
+	 */
+	private ResponseEvent set(OID oids[]) throws IOException {
+		PDU pdu = new PDU(); 
+		for (OID oid : oids) {
+			pdu.add(new VariableBinding(oid));
+		}
+		
+		pdu.setType(PDU.SET);
 		ResponseEvent event = snmp.send(pdu, getTarget(), null);
 		
 		if(event != null) {
